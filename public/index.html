@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Movie Discovery</title>
+  <style>
+    :root {
+      --bg-color: #000102;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --border-color: #334155;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    header { text-align: center; margin-bottom: 40px; }
+    header h1 { 
+      font-size: 2.5rem; 
+      font-weight: 800; 
+      background: linear-gradient(to right, #60a5fa, #a78bfa); 
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent; 
+      margin-bottom: 10px; 
+    }
+    header p { color: var(--text-muted); font-size: 1.1rem; }
+
+    /* Search Bar */
+    .search-container { display: flex; gap: 10px; margin-bottom: 25px; max-width: 600px; margin-left: auto; margin-right: auto; }
+    .search-container input { flex: 1; padding: 15px 20px; border-radius: 50px; border: 1px solid var(--border-color); background: var(--card-bg); color: white; font-size: 1rem; outline: none; transition: border-color 0.2s; }
+    .search-container input:focus { border-color: var(--primary); }
+    .search-container button { padding: 15px 30px; border-radius: 50px; border: none; background: var(--primary); color: white; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+    .search-container button:hover { background: var(--primary-hover); }
+
+    /* Filters */
+    .filters { display: flex; flex-wrap: wrap; gap: 15px; justify-content: center; background: var(--card-bg); padding: 20px; border-radius: 15px; margin-bottom: 30px; border: 1px solid var(--border-color); }
+    .filter-group { display: flex; flex-direction: column; gap: 5px; }
+    .filter-group label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+    .filter-group select { padding: 10px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-color); color: white; font-size: 0.95rem; outline: none; cursor: pointer; }
+    .filter-group select:focus { border-color: var(--primary); }
+
+    #result-count { color: var(--text-muted); margin-bottom: 20px; font-size: 0.95rem; text-align: center; }
+
+    /* Movie Grid */
+    #movie-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+
+    /* Movie Card */
+    .movie-card { background: var(--card-bg); border-radius: 15px; overflow: hidden; border: 1px solid var(--border-color); transition: transform 0.2s, box-shadow 0.2s; display: flex; flex-direction: column; }
+    .movie-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+    .movie-card img { width: 100%; aspect-ratio: 2/3; object-fit: cover; background-color: #334155; }
+    .movie-info { padding: 20px; display: flex; flex-direction: column; flex: 1; }
+    .movie-info h3 { font-size: 1.2rem; margin-bottom: 10px; line-height: 1.3; }
+    .movie-meta { display: flex; flex-wrap: wrap; gap: 10px; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 15px; }
+    .movie-meta span { background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 5px; }
+    .movie-info p { 
+      font-size: 0.9rem; 
+      color: #cbd5e1; 
+      line-height: 1.5; 
+      flex: 1; 
+      display: -webkit-box; 
+      -webkit-box-orient: vertical; 
+      line-clamp: 4;
+      -webkit-line-clamp: 4; 
+      overflow: hidden; 
+    }
+
+    /* Load More Button */
+    #load-more-btn { display: block; margin: 40px auto; padding: 15px 40px; border-radius: 50px; border: none; background: var(--card-bg); color: white; font-size: 1rem; font-weight: bold; border: 1px solid var(--border-color); cursor: pointer; transition: all 0.2s; }
+    #load-more-btn:hover { background: var(--primary); border-color: var(--primary); }
+
+    .loading-text { text-align: center; grid-column: 1 / -1; color: var(--text-muted); font-size: 1.2rem; padding: 40px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Movie Discovery</h1>
+      <p>Find your next favorite film</p>
+    </header>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+      <input type="text" id="search-input" placeholder="Search for a movie title...">
+      <button onclick="loadMovies()">Search</button>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+      <div class="filter-group">
+        <label for="category">Show</label>
+        <select id="category">
+          <option value="">Any Category</option>
+          <option value="top_rated">Top Rated</option>
+          <option value="popular">Popular</option>
+          <option value="now_playing">Now Playing</option>
+          <option value="upcoming">Upcoming</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="genre">Genre</label>
+        <select id="genre">
+          <option value="">Any</option>
+          <option value="28">Action</option>
+          <option value="12">Adventure</option>
+          <option value="16">Animation</option>
+          <option value="35">Comedy</option>
+          <option value="80">Crime</option>
+          <option value="99">Documentary</option>
+          <option value="18">Drama</option>
+          <option value="10751">Family</option>
+          <option value="14">Fantasy</option>
+          <option value="36">History</option>
+          <option value="27">Horror</option>
+          <option value="10402">Music</option>
+          <option value="9648">Mystery</option>
+          <option value="10749">Romance</option>
+          <option value="878">Sci-Fi</option>
+          <option value="53">Thriller</option>
+          <option value="10752">War</option>
+          <option value="37">Western</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="year">Year</label>
+        <select id="year">
+          <option value="">Any</option>
+          <option value="2024">2024</option>
+          <option value="2023">2023</option>
+          <option value="2022">2022</option>
+          <option value="2021">2021</option>
+          <option value="2020">2020</option>
+          <option value="2010">2010</option>
+          <option value="2000">2000</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="language">Language</label>
+        <select id="language">
+          <option value="">Any</option>
+          <option value="en">English</option>
+          <option value="bn">Bengali</option>
+          <option value="hi">Hindi</option>
+          <option value="es">Spanish</option>
+          <option value="fr">French</option>
+          <option value="ja">Japanese</option>
+          <option value="ko">Korean</option>
+        </select>
+      </div>
+    </div>
+    
+    <p id="result-count"></p>
+    <div id="movie-list"></div>
+    <button id="load-more-btn" onclick="loadMore()" style="display:none;">Load More Movies</button>
+  </div>
+
+  <script>
+    const genreMap = { 28: "Action", 12: "Adventure", 16: "Animation", 35: "Comedy", 80: "Crime", 99: "Documentary", 18: "Drama", 10751: "Family", 14: "Fantasy", 36: "History", 27: "Horror", 10402: "Music", 9648: "Mystery", 10749: "Romance", 878: "Sci-Fi", 10770: "TV Movie", 53: "Thriller", 10752: "War", 37: "Western" };
+    const languageMap = { en: "English", bn: "Bengali", hi: "Hindi", es: "Spanish", fr: "French", de: "German", ja: "Japanese", ko: "Korean", zh: "Chinese", it: "Italian", ru: "Russian", pt: "Portuguese" };
+
+    let currentPage = 1;
+    let totalPages = 1;
+    let totalResults = 0;
+
+    // Trigger search when pressing Enter
+    document.getElementById('search-input').addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') loadMovies();
+    });
+
+    function buildUrl(page) {
+      const search = document.getElementById('search-input').value.trim();
+      
+      // If searching, we only pass the search query
+      if (search) {
+        return `/api/movies?search=${encodeURIComponent(search)}&page=${page}`;
+      }
+
+      // Otherwise, use filters
+      const category = document.getElementById('category').value;
+      const genre = document.getElementById('genre').value;
+      const year = document.getElementById('year').value;
+      const language = document.getElementById('language').value;
+      
+      let url = `/api/movies?page=${page}`;
+      if (category) url += `&category=${category}`; // Only add if not "Any Category"
+      if (genre) url += `&genre=${genre}`;
+      if (year) url += `&year=${year}`;
+      if (language) url += `&language=${language}`;
+      return url;
+    }
+
+    function renderMovies(movies, append = false) {
+      const movieList = document.getElementById('movie-list');
+      if (!append) movieList.innerHTML = '';
+
+      movies.forEach(movie => {
+        const releaseYear = movie.release_date ? movie.release_date.split('-')[0] : 'N/A';
+        const genres = movie.genre_ids ? movie.genre_ids.slice(0, 2).map(id => genreMap[id] || "Unknown").join(', ') : 'N/A';
+        const lang = languageMap[movie.original_language] || (movie.original_language || 'N/A').toUpperCase();
+        const posterPath = movie.poster_path ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : 'https://via.placeholder.com/300x450/1e293b/94a3b8?text=No+Image';
+
+        const movieCard = document.createElement('div');
+        movieCard.className = 'movie-card';
+        movieCard.innerHTML = `
+          <img src="${posterPath}" alt="${movie.title} Poster" loading="lazy">
+          <div class="movie-info">
+            <h3>${movie.title}</h3>
+            <div class="movie-meta">
+              <span>⭐ ${(movie.vote_average || 0).toFixed(1)}</span>
+              <span>📅 ${releaseYear}</span>
+            </div>
+            <div class="movie-meta" style="margin-bottom: 10px;">
+              <span>🎭 ${genres}</span>
+              <span>🌐 ${lang}</span>
+            </div>
+            <p>${movie.overview || 'No description available.'}</p>
+          </div>
+        `;
+        movieList.appendChild(movieCard);
+      });
+    }
+
+    async function loadMovies() {
+      currentPage = 1;
+      const movieList = document.getElementById('movie-list');
+      const loadMoreBtn = document.getElementById('load-more-btn');
+      const countEl = document.getElementById('result-count');
+      
+      movieList.innerHTML = '<p class="loading-text">Loading movies...</p>';
+      loadMoreBtn.style.display = 'none';
+      countEl.textContent = '';
+
+      try {
+        const response = await fetch(buildUrl(1));
+        const data = await response.json();
+        
+        if (!response.ok) throw new Error(data.error || `Server error: ${response.status}`);
+
+        if (!data.results || data.results.length === 0) {
+            movieList.innerHTML = '<p class="loading-text">No movies found matching your criteria.</p>';
+            return;
+        }
+
+        totalPages = data.total_pages || 1;
+        totalResults = data.total_results || 0;
+
+        renderMovies(data.results);
+        countEl.textContent = `Showing 1–${data.results.length} of ${totalResults.toLocaleString()} movies`;
+
+        if (currentPage < totalPages) {
+          loadMoreBtn.style.display = 'block';
+        }
+      } catch (error) {
+        console.error("❌ Error:", error);
+        movieList.innerHTML = `<p class="loading-text" style="color:#ef4444;">Error: ${error.message}</p>`;
+      }
+    }
+
+    async function loadMore() {
+      if (currentPage >= totalPages) return;
+      currentPage++;
+
+      const loadMoreBtn = document.getElementById('load-more-btn');
+      const countEl = document.getElementById('result-count');
+      loadMoreBtn.textContent = 'Loading...';
+      loadMoreBtn.disabled = true;
+
+      try {
+        const response = await fetch(buildUrl(currentPage));
+        const data = await response.json();
+        
+        if (!response.ok) throw new Error(data.error || `Server error: ${response.status}`);
+
+        renderMovies(data.results, true);
+        const shown = document.querySelectorAll('.movie-card').length;
+        countEl.textContent = `Showing ${shown} of ${totalResults.toLocaleString()} movies`;
+
+        if (currentPage >= totalPages) {
+          loadMoreBtn.style.display = 'none';
+        } else {
+          loadMoreBtn.textContent = 'Load More Movies';
+          loadMoreBtn.disabled = false;
+        }
+      } catch (error) {
+        console.error("❌ Error:", error);
+        loadMoreBtn.textContent = 'Load More Movies';
+        loadMoreBtn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>
