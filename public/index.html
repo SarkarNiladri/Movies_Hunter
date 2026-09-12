@@ -83,6 +83,25 @@
     #load-more-btn:hover { background: var(--primary); border-color: var(--primary); }
 
     .loading-text { text-align: center; grid-column: 1 / -1; color: var(--text-muted); font-size: 1.2rem; padding: 40px; }
+        /* Mobile Polish */
+      @media (max-width: 600px) {
+      body { padding: 20px 15px; }
+      header h1 { font-size: 1.8rem; }
+      header p { font-size: 1rem; }
+      
+      /* Stack search input and button */
+      .search-container { flex-direction: column; }
+      .search-container button { width: 100%; padding: 12px; }
+      
+      /* Make filter dropdowns full-width for easier tapping */
+      .filters { padding: 15px; }
+      .filter-group { width: 100%; }
+      .filter-group select { width: 100%; }
+      
+      /* Make "Load More" button full-width */
+      #load-more-btn { width: 100%; padding: 15px; }
+    }
+
   </style>
 </head>
 <body>
