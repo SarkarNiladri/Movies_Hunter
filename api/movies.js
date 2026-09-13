@@ -29,7 +29,7 @@ async function fetchWithRetry(url, retries = 3) {
 }
 
 export default async function handler(req, res) {
-  const TMDB_API_KEY = "";
+  const TMDB_API_KEY = process.env.TMDB_API_KEY;
   if (!TMDB_API_KEY) return res.status(500).json({ error: 'Missing TMDB_API_KEY in .env.local' });
 
   const { genre, year, language, category, page, search } = req.query;
