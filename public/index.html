@@ -313,8 +313,9 @@
     }
     #result-count strong { color: var(--primary-hover); }
 
-    /* Movie Grid */
-    #movie-list { 
+        /* Movie Grids (Discover + Watchlist) */
+    #movie-list,
+    #watchlist-list { 
       display: grid; 
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); 
       gap: 20px; 
@@ -588,7 +589,8 @@
       .filter-group { flex: 1 1 calc(50% - 12px); min-width: 0; }
       #clear-btn { flex: 1 1 100%; width: 100%; justify-content: center; }
       
-      #movie-list { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+      #movie-list,
+      #watchlist-list { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
       .movie-info { padding: 10px 12px 12px; }
       .movie-info h3 { font-size: 0.85rem; }
       .movie-info p { display: none; }
@@ -739,7 +741,7 @@
           Clear All
         </button>
       </div>
-      <div id="watchlist-list" class="movie-list-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;"></div>
+          <div id="watchlist-list"></div>
     </div>
 
     <footer>
