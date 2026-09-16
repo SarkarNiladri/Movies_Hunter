@@ -3,14 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Movie Quest</title>
+  <title>Movie Discovery</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg-color: #0a0e17;
-      --bg-glow: #1a1f35;
       --card-bg: #151a28;
       --card-hover: #1c2233;
       --text-main: #f1f5f9;
@@ -20,12 +19,12 @@
       --primary-glow: rgba(99, 102, 241, 0.4);
       --accent: #fbbf24;
       --danger: #ef4444;
+      --success: #10b981;
       --border-color: rgba(255, 255, 255, 0.06);
       --border-hover: rgba(99, 102, 241, 0.4);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     html { scroll-behavior: smooth; }
 
     body {
@@ -49,7 +48,7 @@
     .container { max-width: 1400px; margin: 0 auto; }
 
     /* Header */
-    header { text-align: center; margin-bottom: 50px; position: relative; }
+    header { text-align: center; margin-bottom: 30px; }
     header .logo-badge {
       display: inline-flex;
       align-items: center;
@@ -87,11 +86,59 @@
     }
     header p { color: var(--text-muted); font-size: 1.05rem; font-weight: 400; }
 
+    /* Tab Switcher */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 32px;
+      background: rgba(21, 26, 40, 0.6);
+      backdrop-filter: blur(20px);
+      padding: 6px;
+      border-radius: 14px;
+      border: 1px solid var(--border-color);
+      max-width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .tab-btn {
+      padding: 12px 26px;
+      border-radius: 10px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .tab-btn:hover { color: var(--text-main); }
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--primary), #8b5cf6);
+      color: white;
+      box-shadow: 0 4px 15px var(--primary-glow);
+    }
+    .tab-btn .count-badge {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      min-width: 22px;
+      text-align: center;
+    }
+    .tab-btn.active .count-badge { background: rgba(255, 255, 255, 0.25); }
+    .tab-btn svg { width: 16px; height: 16px; }
+
     /* Search Bar */
     .search-container { 
       display: flex; 
       gap: 10px; 
-      margin-bottom: 30px; 
+      margin-bottom: 25px; 
       max-width: 650px; 
       margin-left: auto; 
       margin-right: auto;
@@ -144,7 +191,6 @@
       transform: translateY(-2px);
       box-shadow: 0 6px 20px var(--primary-glow);
     }
-    .search-container button:active { transform: translateY(0); }
 
     /* Filters */
     .filters { 
@@ -190,7 +236,6 @@
       border-color: var(--primary); 
       box-shadow: 0 0 0 3px var(--primary-glow);
     }
-    .filter-group select:hover { border-color: var(--border-hover); }
     .filter-group option { background: #151a28; }
 
     /* Clear Filters Button */
@@ -216,6 +261,47 @@
       background: rgba(239, 68, 68, 0.08);
     }
     #clear-btn svg { width: 14px; height: 14px; }
+
+        /* Clear Watchlist Button */
+    #clear-watchlist-btn {
+      padding: 10px 18px;
+      border-radius: 10px;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      background: rgba(239, 68, 68, 0.08);
+      color: #f87171;
+      font-size: 0.85rem;
+      font-family: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 40px;
+    }
+    #clear-watchlist-btn:hover {
+      border-color: var(--danger);
+      color: white;
+      background: var(--danger);
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+    }
+    #clear-watchlist-btn svg { width: 14px; height: 14px; }
+
+    /* Watchlist Header */
+    .watchlist-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    #watchlist-count-text { 
+      color: var(--text-muted); 
+      font-size: 0.9rem; 
+      font-weight: 500;
+    }
+    #watchlist-count-text strong { color: var(--primary-hover); }
 
     /* Result Count */
     #result-count { 
@@ -268,6 +354,7 @@
     }
     .movie-card:hover img { transform: scale(1.08); }
     
+    /* Rating Badge (top-right) */
     .rating-badge {
       position: absolute;
       top: 10px;
@@ -283,8 +370,45 @@
       display: flex;
       align-items: center;
       gap: 4px;
+      z-index: 2;
     }
     .rating-badge svg { width: 12px; height: 12px; }
+
+    /* Watchlist Toggle Button (top-left) */
+    .watchlist-btn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(10, 14, 23, 0.85);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s;
+      z-index: 2;
+      padding: 0;
+    }
+    .watchlist-btn:hover {
+      transform: scale(1.15);
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.3);
+    }
+    .watchlist-btn svg { width: 18px; height: 18px; stroke-width: 2.5; }
+    .watchlist-btn.added {
+      background: linear-gradient(135deg, var(--primary), #8b5cf6);
+      border-color: transparent;
+      box-shadow: 0 4px 15px var(--primary-glow);
+    }
+    .watchlist-btn.added:hover {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+    }
     
     .movie-info { 
       padding: 10px 12px 12px; 
@@ -406,6 +530,35 @@
     .empty-state.error { color: #ef4444; }
     .empty-state.error h3 { color: #ef4444; }
 
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(21, 26, 40, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--primary);
+      color: white;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 20px var(--primary-glow);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      pointer-events: none;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .toast svg { width: 18px; height: 18px; color: var(--primary-hover); }
+
     /* Footer */
     footer {
       text-align: center;
@@ -423,7 +576,10 @@
       body { padding: 24px 12px; }
       header h1 { font-size: 2rem; letter-spacing: -1px; }
       header p { font-size: 0.95rem; }
-      header { margin-bottom: 32px; }
+      header { margin-bottom: 24px; }
+      
+      .tabs { width: 100%; max-width: none; }
+      .tab-btn { flex: 1; justify-content: center; padding: 12px 16px; font-size: 0.85rem; }
       
       .search-container { flex-direction: column; }
       .search-container button { width: 100%; padding: 14px; }
@@ -449,110 +605,154 @@
         <span class="dot"></span>
         Powered by TMDB
       </div>
-      <h1>Movie Quest📽️</h1>
-      <p>Created by Niladri</p>
+      <h1>Movie Discovery</h1>
+      <p>Find your next favorite film</p>
     </header>
 
-    <!-- Search Bar -->
-    <div class="search-container">
-      <div class="search-wrapper">
-        <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Tab Switcher -->
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-discover" onclick="switchTab('discover')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8"></circle>
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
-        <input type="text" id="search-input" placeholder="Search for a movie title...">
-      </div>
-      <button onclick="loadMovies()">Search</button>
-    </div>
-
-    <!-- Filters -->
-    <div class="filters">
-      <div class="filter-group">
-        <label for="category">Show</label>
-        <select id="category">
-          <option value="">Any Category</option>
-          <option value="top_rated">Top Rated</option>
-          <option value="popular">Popular</option>
-          <option value="now_playing">Now Playing</option>
-          <option value="upcoming">Upcoming</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="genre">Genre</label>
-        <select id="genre">
-          <option value="">Any</option>
-          <option value="28">Action</option>
-          <option value="12">Adventure</option>
-          <option value="16">Animation</option>
-          <option value="35">Comedy</option>
-          <option value="80">Crime</option>
-          <option value="99">Documentary</option>
-          <option value="18">Drama</option>
-          <option value="10751">Family</option>
-          <option value="14">Fantasy</option>
-          <option value="36">History</option>
-          <option value="27">Horror</option>
-          <option value="10402">Music</option>
-          <option value="9648">Mystery</option>
-          <option value="10749">Romance</option>
-          <option value="878">Sci-Fi</option>
-          <option value="53">Thriller</option>
-          <option value="10752">War</option>
-          <option value="37">Western</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="year">Year</label>
-        <select id="year">
-          <option value="">Any</option>
-          <option value="2026">2026</option>
-          <option value="2025">2025</option>
-          <option value="2024">2024</option>
-          <option value="2023">2023</option>
-          <option value="2022">2022</option>
-          <option value="2021">2021</option>
-          <option value="2020">2020</option>
-          <option value="2010">2010</option>
-          <option value="2000">2000</option>
-        </select>
-      </div>
-
-      <div class="filter-group">
-        <label for="language">Language</label>
-        <select id="language">
-          <option value="">Any</option>
-          <option value="en">English</option>
-          <option value="bn">Bengali</option>
-          <option value="hi">Hindi</option>
-          <option value="zh">Chinese</option>
-          <option value="id">Indonesian</option>
-          <option value="ja">Japanese</option>
-          <option value="ko">Korean</option>
-          <option value="ru">Russian</option>
-          <option value="es">Spanish</option>
-          <option value="fr">French</option>
-        </select>
-      </div>
-
-      <!-- Clear Filters Button -->
-      <button id="clear-btn" onclick="clearFilters()" title="Reset all filters">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="18" y1="6" x2="6" y2="18"></line>
-          <line x1="6" y1="6" x2="18" y2="18"></line>
+        Discover
+      </button>
+      <button class="tab-btn" id="tab-watchlist" onclick="switchTab('watchlist')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
         </svg>
-        Clear Filters
+        Watchlist
+        <span class="count-badge" id="watchlist-count">0</span>
       </button>
     </div>
-    
-    <p id="result-count"></p>
-    <div id="movie-list"></div>
-    <button id="load-more-btn" onclick="loadMore()" style="display:none;">Load More Movies</button>
+
+    <!-- DISCOVER VIEW -->
+    <div id="discover-view">
+      <!-- Search Bar -->
+      <div class="search-container">
+        <div class="search-wrapper">
+          <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="search-input" placeholder="Search for a movie title...">
+        </div>
+        <button onclick="loadMovies()">Search</button>
+      </div>
+
+      <!-- Filters -->
+      <div class="filters">
+        <div class="filter-group">
+          <label for="category">Show</label>
+          <select id="category">
+            <option value="">Any Category</option>
+            <option value="top_rated">Top Rated</option>
+            <option value="popular">Popular</option>
+            <option value="now_playing">Now Playing</option>
+            <option value="upcoming">Upcoming</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="genre">Genre</label>
+          <select id="genre">
+            <option value="">Any</option>
+            <option value="28">Action</option>
+            <option value="12">Adventure</option>
+            <option value="16">Animation</option>
+            <option value="35">Comedy</option>
+            <option value="80">Crime</option>
+            <option value="99">Documentary</option>
+            <option value="18">Drama</option>
+            <option value="10751">Family</option>
+            <option value="14">Fantasy</option>
+            <option value="36">History</option>
+            <option value="27">Horror</option>
+            <option value="10402">Music</option>
+            <option value="9648">Mystery</option>
+            <option value="10749">Romance</option>
+            <option value="878">Sci-Fi</option>
+            <option value="53">Thriller</option>
+            <option value="10752">War</option>
+            <option value="37">Western</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="year">Year</label>
+          <select id="year">
+            <option value="">Any</option>
+            <option value="2026">2026</option>
+            <option value="2025">2025</option>
+            <option value="2024">2024</option>
+            <option value="2023">2023</option>
+            <option value="2022">2022</option>
+            <option value="2021">2021</option>
+            <option value="2020">2020</option>
+            <option value="2010">2010</option>
+            <option value="2000">2000</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="language">Language</label>
+          <select id="language">
+            <option value="">Any</option>
+            <option value="en">English</option>
+            <option value="bn">Bengali</option>
+            <option value="hi">Hindi</option>
+            <option value="zh">Chinese</option>
+            <option value="id">Indonesian</option>
+            <option value="ja">Japanese</option>
+            <option value="ko">Korean</option>
+            <option value="ru">Russian</option>
+            <option value="es">Spanish</option>
+            <option value="fr">French</option>
+          </select>
+        </div>
+
+        <button id="clear-btn" onclick="clearFilters()" title="Reset all filters">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+          Clear Filters
+        </button>
+      </div>
+      
+      <p id="result-count"></p>
+      <div id="movie-list"></div>
+      <button id="load-more-btn" onclick="loadMore()" style="display:none;">Load More Movies</button>
+    </div>
+
+    <!-- WATCHLIST VIEW (hidden by default) -->
+        <!-- WATCHLIST VIEW (hidden by default) -->
+    <div id="watchlist-view" style="display:none;">
+      <div class="watchlist-header">
+        <p id="watchlist-count-text"></p>
+        <button id="clear-watchlist-btn" onclick="clearWatchlist()" style="display:none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+          Clear All
+        </button>
+      </div>
+      <div id="watchlist-list" class="movie-list-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;"></div>
+    </div>
 
     <footer>
       <p>Built with ❤️ using the <a href="https://www.themoviedb.org/" target="_blank">TMDB API</a></p>
     </footer>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+    <span id="toast-message">Added to watchlist</span>
   </div>
 
   <script>
@@ -562,7 +762,234 @@
     let currentPage = 1;
     let totalPages = 1;
     let totalResults = 0;
+    let currentTab = 'discover';
 
+    // ============================================
+    // WATCHLIST LOGIC (localStorage-based)
+    // ============================================
+    const WATCHLIST_KEY = 'movieWatchlist';
+
+    function getWatchlist() {
+      try {
+        return JSON.parse(localStorage.getItem(WATCHLIST_KEY)) || [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function saveWatchlist(list) {
+      localStorage.setItem(WATCHLIST_KEY, JSON.stringify(list));
+      updateWatchlistCount();
+    }
+
+    function isInWatchlist(movieId) {
+      return getWatchlist().some(m => m.id === movieId);
+    }
+
+    function addToWatchlist(movie) {
+      const list = getWatchlist();
+      if (!list.some(m => m.id === movie.id)) {
+        // Store only essential fields to keep localStorage small
+        list.push({
+          id: movie.id,
+          title: movie.title,
+          poster_path: movie.poster_path,
+          vote_average: movie.vote_average,
+          release_date: movie.release_date,
+          original_language: movie.original_language,
+          genre_ids: movie.genre_ids,
+          overview: movie.overview
+        });
+        saveWatchlist(list);
+        showToast(`Added "${movie.title}" to watchlist`);
+      }
+    }
+
+    function removeFromWatchlist(movieId) {
+      const list = getWatchlist().filter(m => m.id !== movieId);
+      saveWatchlist(list);
+    }
+
+    function toggleWatchlist(event, movie) {
+      event.stopPropagation();
+      if (isInWatchlist(movie.id)) {
+        removeFromWatchlist(movie.id);
+        showToast(`Removed "${movie.title}" from watchlist`);
+      } else {
+        addToWatchlist(movie);
+      }
+      // Update button visual on all instances of this movie
+      document.querySelectorAll(`.watchlist-btn[data-id="${movie.id}"]`).forEach(btn => {
+        btn.classList.toggle('added', isInWatchlist(movie.id));
+        btn.innerHTML = isInWatchlist(movie.id) ? checkIconSVG() : plusIconSVG();
+      });
+    }
+
+    function plusIconSVG() {
+      return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>`;
+    }
+    function checkIconSVG() {
+      return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+    }
+
+    function updateWatchlistCount() {
+      document.getElementById('watchlist-count').textContent = getWatchlist().length;
+    }
+
+    // ============================================
+    // TOAST NOTIFICATION
+    // ============================================
+    let toastTimer = null;
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-message').textContent = message;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    // ============================================
+    // TAB SWITCHING
+    // ============================================
+    function switchTab(tab) {
+      currentTab = tab;
+      const discoverView = document.getElementById('discover-view');
+      const watchlistView = document.getElementById('watchlist-view');
+      const tabDiscover = document.getElementById('tab-discover');
+      const tabWatchlist = document.getElementById('tab-watchlist');
+
+      if (tab === 'discover') {
+        discoverView.style.display = 'block';
+        watchlistView.style.display = 'none';
+        tabDiscover.classList.add('active');
+        tabWatchlist.classList.remove('active');
+      } else {
+        discoverView.style.display = 'none';
+        watchlistView.style.display = 'block';
+        tabDiscover.classList.remove('active');
+        tabWatchlist.classList.add('active');
+        renderWatchlist();
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+        // ============================================
+    // CLEAR ENTIRE WATCHLIST
+    // ============================================
+    function clearWatchlist() {
+      const list = getWatchlist();
+      if (list.length === 0) return;
+
+      const confirmed = confirm(
+        `Are you sure you want to remove all ${list.length} movie${list.length !== 1 ? 's' : ''} from your watchlist?\n\nThis cannot be undone.`
+      );
+      
+      if (!confirmed) return;
+
+      saveWatchlist([]);
+      showToast('Watchlist cleared');
+      renderWatchlist();
+    }
+    // ============================================
+    // RENDER WATCHLIST VIEW
+    // ============================================
+    function renderWatchlist() {
+          
+      const list = getWatchlist();
+      const container = document.getElementById('watchlist-list');
+      const countText = document.getElementById('watchlist-count-text');
+      const clearBtn = document.getElementById('clear-watchlist-btn');
+
+      if (list.length === 0) {
+        countText.textContent = '';
+        clearBtn.style.display = 'none';   // ← ADD THIS LINE
+        container.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <h3>Your watchlist is empty</h3>
+            <p>Click the + button on any movie to save it here.</p>
+          </div>
+        `;
+        return;
+      }
+
+      countText.innerHTML = `<strong>${list.length}</strong> movie${list.length !== 1 ? 's' : ''} in your watchlist`;
+      clearBtn.style.display = 'inline-flex';   // ← ADD THIS LINE
+      container.innerHTML = '';
+      list.forEach((movie, index) => {
+        const card = buildMovieCard(movie, index, true);
+        container.appendChild(card);
+      });
+    }
+
+    // ============================================
+    // BUILD MOVIE CARD
+    // ============================================
+    function buildMovieCard(movie, index, isWatchlistView = false) {
+      const releaseYear = movie.release_date ? movie.release_date.split('-')[0] : 'N/A';
+      const activeGenreFilter = document.getElementById('genre')?.value || '';
+      
+      let genreIds = movie.genre_ids || [];
+      if (activeGenreFilter && genreIds.includes(parseInt(activeGenreFilter))) {
+        genreIds = [parseInt(activeGenreFilter), ...genreIds.filter(id => id !== parseInt(activeGenreFilter))];
+      }
+      const genres = genreIds.slice(0, 2).map(id => genreMap[id] || "Unknown").join(', ');
+
+      const lang = languageMap[movie.original_language] || (movie.original_language || 'N/A').toUpperCase();
+      const rating = (movie.vote_average || 0).toFixed(1);
+      const posterPath = movie.poster_path 
+        ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` 
+        : 'https://via.placeholder.com/300x450/1a1f35/8b95a8?text=No+Image';
+
+      const inList = isInWatchlist(movie.id);
+
+      const movieCard = document.createElement('div');
+      movieCard.className = 'movie-card';
+      movieCard.style.animationDelay = `${Math.min(index * 30, 300)}ms`;
+      movieCard.innerHTML = `
+        <div class="poster-wrapper">
+          <img src="${posterPath}" alt="${movie.title} Poster" loading="lazy">
+          <button class="watchlist-btn ${inList ? 'added' : ''}" data-id="${movie.id}" 
+                  title="${inList ? 'Remove from watchlist' : 'Add to watchlist'}">
+            ${inList ? checkIconSVG() : plusIconSVG()}
+          </button>
+          <div class="rating-badge">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+            ${rating}
+          </div>
+        </div>
+        <div class="movie-info">
+          <h3>${movie.title}</h3>
+          <div class="movie-meta">
+            <span class="pill">📅 ${releaseYear}</span>
+            <span class="pill">🌐 ${lang}</span>
+          </div>
+          <div class="movie-meta" style="margin-bottom: 10px;">
+            <span class="pill genre-pill">🎭 ${genres}</span>
+          </div>
+          <p>${movie.overview || 'No description available.'}</p>
+        </div>
+      `;
+
+      // Attach watchlist toggle
+      const btn = movieCard.querySelector('.watchlist-btn');
+      btn.addEventListener('click', (e) => {
+        toggleWatchlist(e, movie);
+        if (isWatchlistView && !isInWatchlist(movie.id)) {
+          // If we're in the watchlist view and just removed, re-render
+          setTimeout(renderWatchlist, 300);
+        }
+      });
+
+      return movieCard;
+    }
+
+    // ============================================
+    // DISCOVER VIEW LOGIC (existing functionality)
+    // ============================================
     document.getElementById('search-input').addEventListener('keypress', function (e) {
       if (e.key === 'Enter') loadMovies();
     });
@@ -584,7 +1011,6 @@
       return url;
     }
 
-    // Reset all filters and search input, then reload
     function clearFilters() {
       document.getElementById('search-input').value = '';
       document.getElementById('category').value = '';
@@ -620,49 +1046,9 @@
       const movieList = document.getElementById('movie-list');
       if (!append) movieList.innerHTML = '';
 
-      const activeGenreFilter = document.getElementById('genre').value;
-
       movies.forEach((movie, index) => {
-        const releaseYear = movie.release_date ? movie.release_date.split('-')[0] : 'N/A';
-        
-        let genreIds = movie.genre_ids || [];
-        if (activeGenreFilter && genreIds.includes(parseInt(activeGenreFilter))) {
-          genreIds = [parseInt(activeGenreFilter), ...genreIds.filter(id => id !== parseInt(activeGenreFilter))];
-        }
-        const genres = genreIds.slice(0, 2).map(id => genreMap[id] || "Unknown").join(', ');
-
-        const lang = languageMap[movie.original_language] || (movie.original_language || 'N/A').toUpperCase();
-        const rating = (movie.vote_average || 0).toFixed(1);
-        const posterPath = movie.poster_path 
-          ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` 
-          : 'https://via.placeholder.com/300x450/1a1f35/8b95a8?text=No+Image';
-
-        const movieCard = document.createElement('div');
-        movieCard.className = 'movie-card';
-        movieCard.style.animationDelay = `${Math.min(index * 30, 300)}ms`;
-        movieCard.innerHTML = `
-          <div class="poster-wrapper">
-            <img src="${posterPath}" alt="${movie.title} Poster" loading="lazy">
-            <div class="rating-badge">
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-              </svg>
-              ${rating}
-            </div>
-          </div>
-          <div class="movie-info">
-            <h3>${movie.title}</h3>
-            <div class="movie-meta">
-              <span class="pill">📅 ${releaseYear}</span>
-              <span class="pill">🌐 ${lang}</span>
-            </div>
-            <div class="movie-meta" style="margin-bottom: 10px;">
-              <span class="pill genre-pill">🎭 ${genres}</span>
-            </div>
-            <p>${movie.overview || 'No description available.'}</p>
-          </div>
-        `;
-        movieList.appendChild(movieCard);
+        const card = buildMovieCard(movie, index, false);
+        movieList.appendChild(card);
       });
     }
 
@@ -727,7 +1113,7 @@
         const data = await parseResponse(response);
 
         renderMovies(data.results, true);
-        const shown = document.querySelectorAll('.movie-card').length;
+        const shown = document.querySelectorAll('#movie-list .movie-card').length;
         countEl.innerHTML = `Showing <strong>${shown}</strong> of <strong>${totalResults.toLocaleString()}</strong> movies`;
 
         if (currentPage >= totalPages) {
@@ -743,6 +1129,10 @@
       }
     }
 
+    // ============================================
+    // INITIALIZE
+    // ============================================
+    updateWatchlistCount();
     loadMovies();
   </script>
 </body>
